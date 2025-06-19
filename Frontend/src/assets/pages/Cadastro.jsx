@@ -1,4 +1,15 @@
 import { useState } from "react";
+import axios from "axios";
+import { Navigate } from "react-router-dom";
+
+
+const nevegate = Navigate;
+const app = axios.create({
+  baseURL: "http://localhost:3000",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 function Cadastro() {
   const [name, setName] = useState();
@@ -10,16 +21,34 @@ function Cadastro() {
     name: name,
     email: email,
     password: password,
-    confirmPassword: confirmPassword
-};
+    confirmPassword: confirmPassword,
+  };
 
-    function handleSubmit(event) {
-    event.preventDefault();
-    }
+  // Função para lidar com o envio do formulário
+  function handleSubmit(event) {
+    event.preventDefault(); 
+
+    // Enviar dadsos do usuário para o servidor
+    app
+      .post("/cadastro", dadosUsers)
+      .then((response) => {
+        if (response.status === 201) {
+          console.log("User registered successfully:", response.data);
+          // Optionally, redirect to a different page or show a success message
+          nevegate("/login"); // Redirect to login page after successful registration
+        }
+      })
+      .catch((error) => {
+        console.error("Error registering user:", error);
+        // Optionally, show an error message
+      });
+
+      
+  }
 
   return (
     <div>
-      <form action="">
+      <form method="POST" onSubmit={handleSubmit}>
         <h1>Cadastro</h1>
         <label htmlFor="name">Name</label>
         <input
@@ -57,7 +86,9 @@ function Cadastro() {
           required
           onChange={(event) => setConfirmPassword(event.target.value)}
         />
-        <button type="submit">Register</button>
+        <button type="submit" onClick={handleSubmit}>
+          Register
+        </button>
       </form>
     </div>
   );
